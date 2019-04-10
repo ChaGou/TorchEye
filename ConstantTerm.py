@@ -1,3 +1,3 @@
-lamb = 3e8/920625000
-antennaNum = 60
-dataDim = 2
+lamb = 3e8/920000000*100
+antennaNum = 64
+dataDim = 1
