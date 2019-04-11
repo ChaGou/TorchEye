@@ -29,7 +29,7 @@ trainloader = torch.utils.data.DataLoader(fileDataset, batch_size=BATCH_SIZE,
 
 model = CHAModule.MyRNN(BATCH_SIZE, N_STEPS, N_INPUTS, N_NEURONS, N_OUTPUTS)
 criterion = nn.MSELoss()
-#model = CHAModule.MyNet3()
+#core = CHAModule.MyNet3()
 
 
 w = 64
@@ -74,7 +74,7 @@ for epoch in range(100):  # loop over the dataset multiple times
 
         # zero the parameter gradients
         optimizer.zero_grad()
-        #model.hidden = model.init_hidden()
+        #core.hidden = core.init_hidden()
         #plt.imshow(labels[0,:].view(48,64).cpu().numpy(),plt.cm.gray)
         #plt.plot(labels[0,0,:].cpu().numpy())
         #plt.show()
@@ -96,10 +96,10 @@ for epoch in range(100):  # loop over the dataset multiple times
             print('[%d, %5d] loss: %.20f' %
                   (epoch + 1, i + 1, running_loss / 200))
             running_loss = 0.0
-            torch.save(model, 'b.model')
+            torch.save(model, 'b.core')
             #break
     # if running_loss <= 0.01:
     #     break
 print('Finished Training')
 
-torch.save(model,'b.model')
+torch.save(model,'b.core')

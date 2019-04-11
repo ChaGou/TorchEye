@@ -15,7 +15,7 @@ import FileDataSet
 TestMoade = pm.Mode.Classification2LabelsOneHot
 if __name__ == '__main__':
     #import TrainTestbed
-    model = torch.load('c.model')
+    model = torch.load('c.core')
     model.eval()
     testPath = r'E:\Data7'
     testDataset = FileDataSet.FileDataset(testPath+r'\traindata.txt',

@@ -84,7 +84,7 @@ print(net)
 # using ``autograd``.
 # You can use any of the Tensor operations in the ``forward`` function.
 #
-# The learnable parameters of a model are returned by ``net.parameters()``
+# The learnable parameters of a core are returned by ``net.parameters()``
 
 params = list(net.parameters())
 print(len(params))

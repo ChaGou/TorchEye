@@ -15,7 +15,7 @@ import FileDataSet
 TestMoade = pm.Mode.Regression
 if __name__ == '__main__':
     #import TrainTestbed
-    model = torch.load('b.model')
+    model = torch.load('b.core')
     model.eval()
     testPath = r'E:\Data7'
     testDataset = FileDataSet.FileDatasetRNN(testPath+r'\traindata.txt',

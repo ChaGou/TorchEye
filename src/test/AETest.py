@@ -61,10 +61,10 @@ for epoch in range(100):  # loop over the dataset multiple times
             print('[%d, %5d] loss: %.20f' %
                   (epoch + 1, i + 1, running_loss / 200))
             running_loss = 0.0
-            torch.save(model, 'c.model')
+            torch.save(model, 'c.core')
             #break
     # if running_loss <= 0.01:
     #     break
 print('Finished Training')
 
-torch.save(model,'c.model')
+torch.save(model,'c.core')
