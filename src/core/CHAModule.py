@@ -186,7 +186,28 @@ class MyNet_Hot(nn.Module):
         x = self.f5(x)
 
         return x
+class CNN_Up(nn.Module):
+    def __init__(self):
+        super(MyNet3, self).__init__() #调用父类的初始化函数
+        self.conv1 = nn.Conv2d(1, 32, 2)
+        self.conv2 = nn.Conv2d(32, 64, 2)
+        self.conv3 = nn.Conv2d(64, 128, 2)
+        self.conv4 = nn.Conv2d(128, 256, 2)
+        self.conv5 = nn.Conv2d(256, 256, 2)
+        self.fc1 = nn.Linear(6 * 2 * 6, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 2)
+        self.dropout = nn.Dropout(p=0.3)
 
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = F.relu(self.conv5(x))
+        print(x.shape)
+        x = x.view(-1, 6 * 2 * 6)
+        x = F.relu(self.fc1(x))
 
 def make_dot(var, params=None):
     """ Produces Graphviz representation of PyTorch autograd graph

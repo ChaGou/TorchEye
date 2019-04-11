@@ -1,7 +1,7 @@
 import numpy
 import torch
 import torch.utils.data
-import ConstantTerm
+from src.core import ConstantTerm
 import random
 
 
@@ -71,8 +71,8 @@ class FileDataset(torch.utils.data.Dataset):
         for i in range(n-1):
             tempdata = data_copy
             templabel = label_copy
-            noise = numpy.random.normal(0,de,(tempdata.shape[0],ConstantTerm.antennaNum))
-            ze = numpy.zeros((tempdata.shape[0],tempdata.shape[1]-ConstantTerm.antennaNum))
+            noise = numpy.random.normal(0, de, (tempdata.shape[0], ConstantTerm.antennaNum))
+            ze = numpy.zeros((tempdata.shape[0], tempdata.shape[1] - ConstantTerm.antennaNum))
             noise = numpy.c_[noise,ze]
             tempdata += noise
             self.data = numpy.r_[self.data,tempdata]
@@ -149,8 +149,8 @@ class FileDatasetRNN(torch.utils.data.Dataset):
         for i in range(n-1):
             tempdata = data_copy
             templabel = label_copy
-            noise = numpy.random.normal(0,de,(tempdata.shape[0],ConstantTerm.antennaNum))
-            ze = numpy.zeros((tempdata.shape[0],tempdata.shape[1]-ConstantTerm.antennaNum))
+            noise = numpy.random.normal(0, de, (tempdata.shape[0], ConstantTerm.antennaNum))
+            ze = numpy.zeros((tempdata.shape[0], tempdata.shape[1] - ConstantTerm.antennaNum))
             noise = numpy.c_[noise,ze]
             tempdata += noise
             self.data = numpy.r_[self.data,tempdata]

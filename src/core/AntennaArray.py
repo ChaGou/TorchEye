@@ -1,11 +1,9 @@
 import torch
 import math
-import ConstantTerm as C
-import CenterCamera
-import torchvision
-import numpy
-import matplotlib.pyplot as plt
-import FileDataSet
+from src.core import ConstantTerm as C
+from src.dataprocess import FileDataSet
+
+
 class SquareArray:
     la = 16.5
     n_row = 8
@@ -80,8 +78,8 @@ Y = torch.linspace(0, h - 1, h).view(h, 1) - h / 2
 Y = torch.matmul(Y, torch.ones(1, w), ).view( w * h,1)
 Z = torch.ones(w*h,1)*250
 testPath = r'E:\DataTest'
-testDataset = FileDataSet.FileDataset(testPath+r'\traindata.txt',
-                                          testPath+r'\trainlabel.txt')
+testDataset = FileDataSet.FileDataset(testPath + r'\traindata.txt',
+                                      testPath +r'\trainlabel.txt')
 testloader = torch.utils.data.DataLoader(testDataset, batch_size=1,
                                               shuffle=False, num_workers=0)
 data,label = testDataset[100]

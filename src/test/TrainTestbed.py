@@ -2,14 +2,10 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.optim as optim
-import CHAModule
-import CenterCamera
-import numpy as np
-import FileDataSet
-import  Parameters as pm
+from src.dataprocess import FileDataSet
+from src.core import Parameters as pm, CHAModule
 import math
-import os
-import matplotlib.pyplot as plt
+
 
 class MyLoss(nn.Module):
     def __init__(self):
@@ -21,16 +17,16 @@ class MyLoss(nn.Module):
 
 WorkMode = pm.Mode.Classification1LabelHeatMap
 testPath = r'E:\Data8'
-fileDataset = FileDataSet.FileDataset(testPath+r'\traindata.txt',
-                                      testPath+r'\trainlabel.txt')
+fileDataset = FileDataSet.FileDataset(testPath + r'\traindata.txt',
+                                      testPath +r'\trainlabel.txt')
 fileDataset.Uniform()
 #fileDataset.make_more(2,0.01)
 trainloader = torch.utils.data.DataLoader(fileDataset, batch_size=10,
                                           shuffle=True, num_workers=0)
 
 model = CHAModule.MyNet1(64, 640)
-modelAE = torch.load('c.model')
-#model = CHAModule.MyNet3()
+modelAE = torch.load('c.core')
+#core = CHAModule.MyNet3()
 
 #criterion = nn.MSELoss()
 criterion = nn.CrossEntropyLoss(size_average=True)
@@ -57,13 +53,13 @@ def HeatMapFromLabel2(labels,delta):
 
 if WorkMode == pm.Mode.Classification2LabelsOneHot:
     criterion = MyLoss()
-    model = CHAModule.MyNet1(56*2,pm.OutputShape[0]+pm.OutputShape[1])
+    model = CHAModule.MyNet1(56 * 2, pm.OutputShape[0] + pm.OutputShape[1])
 elif WorkMode == pm.Mode.Regression:
     criterion = nn.MSELoss()
     model = CHAModule.MyNet1(112, 2)
 elif WorkMode == pm.Mode.Classification1LabelHeatMap:
     criterion = nn.MSELoss()
-    model = CHAModule.MyNet1(112, 64*48)
+    model = CHAModule.MyNet1(112, 64 * 48)
 optimizer = optim.SGD(model.parameters(), lr=1e-2)
 model.train()
 if torch.cuda.is_available():
@@ -101,7 +97,7 @@ for epoch in range(100):  # loop over the dataset multiple times
         #plt.plot(labels[0,0,:].cpu().numpy())
         #plt.show()
         # forward + backward + optimize
-        #outputs = model(modelAE.encoder(inputs))
+        #outputs = core(modelAE.encoder(inputs))
         outputs = model((inputs))
 
         #bb=sum(outputs[0,0,:])
@@ -122,10 +118,10 @@ for epoch in range(100):  # loop over the dataset multiple times
             print('[%d, %5d] loss: %.20f' %
                   (epoch + 1, i + 1, running_loss / 200))
             running_loss = 0.0
-            torch.save(model, 'b.model')
+            torch.save(model, 'b.core')
             #break
     # if running_loss <= 0.01:
     #     break
 print('Finished Training')
 
-torch.save(model,'b.model')
+torch.save(model,'b.core')

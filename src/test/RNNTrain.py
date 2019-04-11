@@ -2,14 +2,9 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.optim as optim
-import CHAModule
-import CenterCamera
-import numpy as np
-import FileDataSet
-import  Parameters as pm
+from src.core import CHAModule
+from src.dataprocess import FileDataSet
 import math
-import os
-import matplotlib.pyplot as plt
 
 N_STEPS = 10
 N_INPUTS = 56*2
@@ -20,8 +15,8 @@ BATCH_SIZE = 5
 
 
 testPath = r'E:\Data6'
-fileDataset = FileDataSet.FileDatasetRNN(testPath+r'\traindata.txt',
-                                      testPath+r'\trainlabel.txt',N_STEPS)
+fileDataset = FileDataSet.FileDatasetRNN(testPath + r'\traindata.txt',
+                                         testPath +r'\trainlabel.txt', N_STEPS)
 
 #fileDataset.make_more(2,0.01)
 trainloader = torch.utils.data.DataLoader(fileDataset, batch_size=BATCH_SIZE,

@@ -3,9 +3,7 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch.optim as optim
 if __name__ == '__main__':
-    import cifar10_tutorial
-    import RobotArm
-    import CHAModule
+    from src.core import CHAModule, RobotArm
 
     x_train = torch.transpose(RobotArm.theta_m, 0, 1)
     y_train = torch.transpose(RobotArm.y, 0, 1)

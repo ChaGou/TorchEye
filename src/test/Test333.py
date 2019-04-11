@@ -1,27 +1,18 @@
 import torch
-from torch.autograd import Variable
-import torch.nn as nn
-import torch.optim as optim
-import CHAModule
-import CenterCamera
-import numpy as np
-import matplotlib.pyplot as plt
-import Parameters as pm
-import torch.nn.functional as F
-import AntennaArray as aa
+from src.core import CenterCamera, Parameters as pm, AntennaArray as aa
 import torchvision
 import math
 
+from src.dataprocess import FileDataSet
 
-import FileDataSet
 TestMoade = pm.Mode.Regression
 if __name__ == '__main__':
     #import TrainTestbed
-    model = torch.load('a.model')
+    model = torch.load('a.core')
     model.eval()
     testPath = r'E:\DataTest'
-    testDataset = FileDataSet.FileDataset(testPath+r'\testdata.txt',
-                                          testPath+r'\testlabel.txt')
+    testDataset = FileDataSet.FileDataset(testPath + r'\testdata.txt',
+                                          testPath +r'\testlabel.txt')
     testloader = torch.utils.data.DataLoader(testDataset, batch_size=1,
                                               shuffle=False, num_workers=0)
     inputs, labels = testDataset[:]

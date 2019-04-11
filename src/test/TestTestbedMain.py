@@ -1,29 +1,25 @@
 import torch
 from torch.autograd import Variable
 import torch.nn as nn
-import torch.optim as optim
-import CHAModule
-import CenterCamera
 import numpy as np
 import matplotlib.pyplot as plt
-import Parameters as pm
+from src.core import Parameters as pm
 import torch.nn.functional as F
-from scipy import signal
 
+from src.dataprocess import FileDataSet
 
-import FileDataSet
 TestMoade = pm.Mode.Regression
 if __name__ == '__main__':
     #import TrainTestbed
-    model = torch.load('a.model')
+    model = torch.load('a.core')
     model.eval()
     testPath = r'E:\Data21'
-    testDataset = FileDataSet.FileDataset(testPath+r'\traindata.txt',
-                                          testPath+r'\trainlabel.txt')
+    testDataset = FileDataSet.FileDataset(testPath + r'\traindata.txt',
+                                          testPath +r'\trainlabel.txt')
     testloader = torch.utils.data.DataLoader(testDataset, batch_size=1,
                                               shuffle=False, num_workers=0)
     criterion = nn.MSELoss()
-    modelAE = torch.load('c.model')
+    modelAE = torch.load('c.core')
 
     # randindex = torch.linspace(1,100,100)#np.random.randint(0, 80, size=[10])
     # for i in randindex:
@@ -34,7 +30,7 @@ if __name__ == '__main__':
     #     if torch.cuda.is_available():
     #         inputs = inputs.cuda()
     #         labels = labels.cuda()
-    #     outputs = model(Variable(inputs ))
+    #     outputs = core(Variable(inputs ))
     #     scal = (torch.Tensor([640, 480]).view(1, 2)).cuda()
     #
     #     #print(outputs.data * scal)
@@ -43,7 +39,7 @@ if __name__ == '__main__':
     #     print('========')
 
     # inputs, labels = testDataset[:]
-    # outputs=model(Variable(inputs.cuda()))
+    # outputs=core(Variable(inputs.cuda()))
     # #scal = (torch.Tensor([640, 480]).view(1, 2)).cuda()
     # #np.savetxt('a.txt', (outputs.data*scal).cpu().numpy(), fmt='%.6f')
     # np.savetxt('a.txt', (outputs.data).cpu().numpy(), fmt='%.6f')
@@ -63,7 +59,7 @@ if __name__ == '__main__':
     #             labels = labels.cuda()
     #
     #
-    #         outputs = model(inputs)
+    #         outputs = core(inputs)
     #         loss = criterion(outputs, labels)
     #
     #
@@ -81,7 +77,7 @@ if __name__ == '__main__':
         if torch.cuda.is_available():
             inputs = inputs.cuda()
             labels = labels.cuda()
-       #outputs = model(Variable(modelAE.encoder(inputs)))
+       #outputs = core(Variable(modelAE.encoder(inputs)))
         outputs = model(Variable((inputs)))
         a = outputs.cpu().detach().numpy().transpose()
         # x = F.softmax(torch.Tensor(a[:pm.OutputShape[0],:]),0)
@@ -135,7 +131,7 @@ if __name__ == '__main__':
         #     if torch.cuda.is_available():
         #         inputs = inputs.cuda()
         #         labels = labels.cuda()
-        #     outputs = model(Variable(inputs))
+        #     outputs = core(Variable(inputs))
         #     a = outputs.view(-1, 3072).cpu().detach().numpy()
         #     b = labels.cpu().numpy()
         #     print(b)

@@ -2,11 +2,10 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.optim as optim
-import CHAModule
-import CenterCamera
+from src.core import CenterCamera, CHAModule
 
+from src.dataprocess import ImageDataset
 
-import ImageDataset
 if __name__ == '__main__':
     imageDataset = ImageDataset.ImageDataset('../images5/', 'testfile55.txt')
     trainloader = torch.utils.data.DataLoader(imageDataset, batch_size=1,

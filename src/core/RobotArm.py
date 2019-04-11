@@ -1,9 +1,6 @@
 import torch
 import math
-import torchvision
-import matplotlib.pyplot as plt
-import ConstantTerm as c
-
+from src.core import ConstantTerm as c
 
 N_ant = 64
 

@@ -1,26 +1,18 @@
 import torch
-from torch.autograd import Variable
 import torch.nn as nn
 import torch.optim as optim
-import CHAModule
-import CenterCamera
-import numpy as np
-import FileDataSet
-import  Parameters as pm
-import math
-import os
-import matplotlib.pyplot as plt
-
+from src.core import CHAModule
+from src.dataprocess import FileDataSet
 
 testPath = r'E:\Data8'
-fileDataset = FileDataSet.FileDataset(testPath+r'\traindata.txt',
-                                      testPath+r'\trainlabel.txt')
+fileDataset = FileDataSet.FileDataset(testPath + r'\traindata.txt',
+                                      testPath +r'\trainlabel.txt')
 fileDataset.Uniform()
 #fileDataset.make_more(2,0.01)
 trainloader = torch.utils.data.DataLoader(fileDataset, batch_size=10,
                                           shuffle=True, num_workers=0)
 
-model = CHAModule.MyAutoEncoder(56*2, 10)
+model = CHAModule.MyAutoEncoder(56 * 2, 10)
 optimizer = optim.SGD(model.parameters(), lr=1e-2)
 model.train()
 criterion = nn.MSELoss()
