@@ -15,11 +15,12 @@ class MyLoss(nn.Module):
     def forward(self, pred, truth):
         return self.cro(pred[:,:pm.OutputShape[0]],truth[:,0,0].cuda())+self.cro(pred[:,pm.OutputShape[0]:],truth[:,0,1].cuda())
 
-WorkMode = pm.Mode.Classification1LabelHeatMap
+workMode = pm.learnMode
+dataMode = pm.dataMode
 testPath = r'E:\Data8'
 fileDataset = FileDataSet.FileDataset(testPath + r'\traindata.txt',
                                       testPath +r'\trainlabel.txt')
-fileDataset.Uniform()
+#fileDataset.Uniform()
 #fileDataset.make_more(2,0.01)
 trainloader = torch.utils.data.DataLoader(fileDataset, batch_size=10,
                                           shuffle=True, num_workers=0)
@@ -51,13 +52,16 @@ def HeatMapFromLabel2(labels,delta):
     #print(g[0,:])
     return g
 
-if WorkMode == pm.Mode.Classification2LabelsOneHot:
+if workMode == pm.LearningMode.Classification2LabelsOneHot:
     criterion = MyLoss()
     model = CHAModule.MyNet1(56 * 2, pm.OutputShape[0] + pm.OutputShape[1])
-elif WorkMode == pm.Mode.Regression:
+elif workMode == pm.LearningMode.Regression:
     criterion = nn.MSELoss()
-    model = CHAModule.MyNet1(112, 2)
-elif WorkMode == pm.Mode.Classification1LabelHeatMap:
+    if dataMode == pm.DataMode.DeltaMode:
+        model = CHAModule.MyNet1(112, 2)
+    elif dataMode == pm.DataMode.SquareMode:
+        model = CHAModule.CNN_Up()
+elif workMode == pm.LearningMode.Classification1LabelHeatMap:
     criterion = nn.MSELoss()
     model = CHAModule.MyNet1(112, 64 * 48)
 optimizer = optim.SGD(model.parameters(), lr=1e-2)
@@ -72,17 +76,17 @@ for epoch in range(100):  # loop over the dataset multiple times
         # get the inputs
         inputs, labels = data
         l=labels
-        if WorkMode == pm.Mode.Classification1Label:
+        if workMode == pm.LearningMode.Classification1Label:
             one_hot = torch.zeros(labels.size(0), 640).scatter_(1, labels.data[:,:,0], 1)
             inputs, labels = Variable(inputs), Variable(one_hot.view(-1, 1, 640))
-        elif WorkMode == pm.Mode.Classification2LabelsOneHot:
+        elif workMode == pm.LearningMode.Classification2LabelsOneHot:
             one_hot = torch.zeros(labels.size(0), pm.OutputShape[0]).scatter_(1, labels.data[:, :, 0], 1)
             one_hot2 = torch.zeros(labels.size(0), pm.OutputShape[1]).scatter_(1, labels.data[:, :, 1], 1)
             inputs, labels = Variable(inputs), Variable(torch.cat((
                 one_hot.view(-1, 1, pm.OutputShape[0]),one_hot2.view(-1, 1, pm.OutputShape[1])),2))
-        elif WorkMode == pm.Mode.Regression:
+        elif workMode == pm.LearningMode.Regression:
             inputs, labels = Variable(inputs), Variable((labels -torch.Tensor([0, 240]).view(1, 2))/ torch.Tensor([640, 240]).view(1, 2))
-        elif WorkMode == pm.Mode.Classification1LabelHeatMap:
+        elif workMode == pm.LearningMode.Classification1LabelHeatMap:
             inputs, labels = Variable(inputs), Variable(HeatMapFromLabel(labels,1.5).view(-1,1,64*48))
         # wrap them in Variable
         #
@@ -103,9 +107,9 @@ for epoch in range(100):  # loop over the dataset multiple times
         #bb=sum(outputs[0,0,:])
         #labels = Variable(torch.LongTensor(labels.view(-1,640)))
         #loss = criterion(outputs.view(-1,640),l[:,0,0].cuda())
-        if WorkMode == pm.Mode.Classification2LabelsOneHot:
+        if workMode == pm.LearningMode.Classification2LabelsOneHot:
             loss = criterion(outputs.view(-1,1120),l)
-        elif WorkMode == pm.Mode.Regression or WorkMode == pm.Mode.Classification1LabelHeatMap:
+        elif workMode == pm.LearningMode.Regression or workMode == pm.LearningMode.Classification1LabelHeatMap:
             #criterion = nn.BCELoss(weight=(labels)+0.1,size_average=True)
             loss = criterion(outputs,labels)
             #loss = -outputs*labels

@@ -7,7 +7,7 @@ from src.core import Parameters as pm
 
 from src.dataprocess import FileDataSet
 
-TestMoade = pm.Mode.Classification2LabelsOneHot
+TestMoade = pm.LearningMode.Classification2LabelsOneHot
 if __name__ == '__main__':
     #import TrainTestbed
     model = torch.load('c.core')

@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 from src.dataprocess import FileDataSet
 
-TestMoade = pm.Mode.Regression
+TestMoade = pm.LearningMode.Regression
 if __name__ == '__main__':
     #import TrainTestbed
     def TestOneTag(epc):
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         #             # break
         #
         # print('Finished Training')
-        if TestMoade == pm.Mode.Classification1LabelHeatMap:
+        if TestMoade == pm.LearningMode.Classification1LabelHeatMap:
             inputs, labels = testDataset[:]
             if torch.cuda.is_available():
                 inputs = inputs.cuda()
@@ -138,7 +138,7 @@ if __name__ == '__main__':
             #     print(b)
             #     plt.imshow(a[:, :].reshape(48, 64))
             #     plt.show()
-        elif TestMoade == pm.Mode.Regression:
+        elif TestMoade == pm.LearningMode.Regression:
             inputs, labels = testDataset[:]
             if torch.cuda.is_available():
                 inputs = inputs.cuda()
@@ -156,7 +156,7 @@ if __name__ == '__main__':
             temp2 = np.hstack((outputs.detach().cpu().numpy()[:, 0].reshape(-1, 1) * 640,
                                outputs.detach().cpu().numpy()[:, 1].reshape(-1, 1) * 240 + 240))
             np.savetxt(testPath + r'\modelResult'+str(epc)+'.txt', temp2)
-        elif TestMoade == pm.Mode.Classification2LabelsOneHot:
+        elif TestMoade == pm.LearningMode.Classification2LabelsOneHot:
             inputs, labels = testDataset[:]
             if torch.cuda.is_available():
                 inputs = inputs.cuda()

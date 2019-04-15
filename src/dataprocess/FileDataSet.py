@@ -3,22 +3,19 @@ import torch
 import torch.utils.data
 from src.core import ConstantTerm
 import random
+import Parameters as pm
 
-
+dataMode = pm.dataMode
 class FileDataset(torch.utils.data.Dataset):
     def __init__(self, data_path, label_path):
         self.data = numpy.loadtxt(data_path)
         self.data = self.fill_zero_data(self.data)
-        data2 = numpy.zeros(self.data.shape)
-        data2[:, 0:63] = self.data[:, 1:64]
-        data2[:, 63] = self.data[:, 0]
+        data2 = self.CorrectAntNum(self.data)
         # data2[:,0:64] = data[:,0:64]
-        data = numpy.zeros((data2.shape[0], 56 * 2))
-        data[:, 0:56] = data2[:, 8:64] - data2[:, 0:56]
-        for i in range(8):
-            data[:, 7 * i + 56:7 * i + 56 + 7] = data2[:, 8 * i + 1:8 * i + 8] - data2[:, 8 * i:8 * i + 7]
-        offset = numpy.loadtxt('offset.txt').reshape(-1,112)
-        data = data + (360 - offset) / 180.0 * numpy.pi
+        if dataMode == pm.DataMode.DeltaMode:
+            data = self.GenDeltaModeData(data2)
+        else:
+            data = self.GenOriginModeData(data2)
         self.data = numpy.mod(data + numpy.pi, 2 * numpy.pi)
         self.data = self.remove_pi_offset(self.data)
         #self.data = self.data / numpy.pi / 2
@@ -63,7 +60,22 @@ class FileDataset(torch.utils.data.Dataset):
         self.label = outputlabel
 
 
+    def CorrectAntNum(self,data):
+        data2 = numpy.zeros(data.shape)
+        data2[:, 0:63] = data[:, 1:64]
+        data2[:, 63] = data[:, 0]
+        return data2
+    def GenDeltaModeData(self,data2):
+        data = numpy.zeros((data2.shape[0], 56 * 2))
+        data[:, 0:56] = data2[:, 8:64] - data2[:, 0:56]
+        for i in range(8):
+            data[:, 7 * i + 56:7 * i + 56 + 7] = data2[:, 8 * i + 1:8 * i + 8] - data2[:, 8 * i:8 * i + 7]
+        offset = numpy.loadtxt('offset.txt').reshape(-1, 112)
+        data = data + (360 - offset) / 180.0 * numpy.pi
+        return data
 
+    def GenOriginModeData(self,data2):
+        return data2-data2[:,1]
 
     def make_more(self, n, de):
         data_copy = self.data
@@ -82,8 +94,13 @@ class FileDataset(torch.utils.data.Dataset):
         label = torch.Tensor(self.label[index,:])
         #data = torch.Tensor(self.data[index, :]-self.data[index,0:1])
         #data = numpy.cos(data*2)
-        data = torch.Tensor(self.data[index,:])
-        data = data.view(-1,56*2)
+        data = torch.Tensor(self.data[index, :])
+        if dataMode == pm.DataMode.DeltaMode:
+            data = data.view(-1,56*2)
+        elif dataMode == pm.DataMode.SquareMode:
+            data = data.view(-1, 8,8)
+        else:
+            data = data.view(-1,64)
         return data, label.view(-1,2)
 
     def __len__(self):

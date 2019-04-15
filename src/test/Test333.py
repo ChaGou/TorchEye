@@ -5,7 +5,7 @@ import math
 
 from src.dataprocess import FileDataSet
 
-TestMoade = pm.Mode.Regression
+TestMoade = pm.LearningMode.Regression
 if __name__ == '__main__':
     #import TrainTestbed
     model = torch.load('a.core')
