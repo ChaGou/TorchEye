@@ -13,4 +13,13 @@ class DataMode(Enum):
 
 OutputShape = [640, 480]
 learnMode = LearningMode.Regression
-dataMode = DataMode.SquareMode
+dataMode = DataMode.OriginMode
+picWidth = 1280
+picHeight = 720
+picDepth = 1000
+
+
+cx=633.87982177734375000
+cy=364.74035644531250000
+fx=711.52478027343750000
+fy=712.65344238281250000

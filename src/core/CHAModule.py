@@ -194,9 +194,9 @@ class CNN_Up(nn.Module):
         self.conv3 = nn.Conv2d(64, 128, 2)
         self.conv4 = nn.Conv2d(128, 256, 2)
         self.conv5 = nn.Conv2d(256, 256, 2)
-        self.fc1 = nn.Linear(6 * 2 * 6, 120)
+        self.fc1 = nn.Linear(2304, 3)
         self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 2)
+        self.fc3 = nn.Linear(84, 3)
         self.dropout = nn.Dropout(p=0.3)
 
     def forward(self, x):
@@ -205,9 +205,10 @@ class CNN_Up(nn.Module):
         x = F.relu(self.conv3(x))
         x = F.relu(self.conv4(x))
         x = F.relu(self.conv5(x))
-        print(x.shape)
-        x = x.view(-1, 6 * 2 * 6)
+        #print(x.shape)
+        x = x.view(x.size(0),1, -1)
         x = F.relu(self.fc1(x))
+        return x
 
 # def make_dot(var, params=None):
 #     """ Produces Graphviz representation of PyTorch autograd graph

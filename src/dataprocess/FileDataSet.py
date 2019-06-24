@@ -4,6 +4,7 @@ import torch.utils.data
 from src.core import ConstantTerm
 import random
 import Parameters as pm
+import os
 
 dataMode = pm.dataMode
 class FileDataset(torch.utils.data.Dataset):
@@ -16,11 +17,13 @@ class FileDataset(torch.utils.data.Dataset):
             data = self.GenDeltaModeData(data2)
         else:
             data = self.GenOriginModeData(data2)
-        self.data = numpy.mod(data + numpy.pi, 2 * numpy.pi)
-        self.data = self.remove_pi_offset(self.data)
+        self.data = numpy.mod(data, 2 * numpy.pi)
+        #self.data = self.remove_pi_offset(self.data)
         #self.data = self.data / numpy.pi / 2
         numpy.savetxt('hehe2.txt', self.data)
         self.label = numpy.loadtxt(label_path)
+        self.label[:,0] = (self.label[:,0]-pm.cx)/pm.fx*self.label[:,2]
+        self.label[:, 1] = (self.label[:, 1] - pm.cy) / pm.fy * self.label[:, 2]
         #self.data = numpy.concatenate((self.data,self.data),1)
 
         #self.label = self.label[1:,:]
@@ -70,12 +73,14 @@ class FileDataset(torch.utils.data.Dataset):
         data[:, 0:56] = data2[:, 8:64] - data2[:, 0:56]
         for i in range(8):
             data[:, 7 * i + 56:7 * i + 56 + 7] = data2[:, 8 * i + 1:8 * i + 8] - data2[:, 8 * i:8 * i + 7]
-        offset = numpy.loadtxt('offset.txt').reshape(-1, 112)
+        print(os.path.abspath('.'))
+        offset = numpy.loadtxt(r'../../output/offset.txt').reshape(-1, 112)
         data = data + (360 - offset) / 180.0 * numpy.pi
         return data
 
     def GenOriginModeData(self,data2):
-        return data2-data2[:,1]
+        #return data2
+        return (data2.transpose()-data2[:,0].transpose()).transpose()
 
     def make_more(self, n, de):
         data_copy = self.data
@@ -101,7 +106,7 @@ class FileDataset(torch.utils.data.Dataset):
             data = data.view(-1, 8,8)
         else:
             data = data.view(-1,64)
-        return data, label.view(-1,2)
+        return data, label.view(-1,3)
 
     def __len__(self):
         return self.label.shape[0]

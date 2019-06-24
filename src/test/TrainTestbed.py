@@ -17,7 +17,7 @@ class MyLoss(nn.Module):
 
 workMode = pm.learnMode
 dataMode = pm.dataMode
-testPath = r'E:\Data8'
+testPath = r'D:\dataset\dataTrain'
 fileDataset = FileDataSet.FileDataset(testPath + r'\traindata.txt',
                                       testPath +r'\trainlabel.txt')
 #fileDataset.Uniform()
@@ -25,8 +25,8 @@ fileDataset = FileDataSet.FileDataset(testPath + r'\traindata.txt',
 trainloader = torch.utils.data.DataLoader(fileDataset, batch_size=10,
                                           shuffle=True, num_workers=0)
 
-model = CHAModule.MyNet1(64, 640)
-modelAE = torch.load('c.core')
+model = CHAModule.MyNet1(64, pm.picWidth)
+#modelAE = torch.load('c.core')
 #core = CHAModule.MyNet3()
 
 #criterion = nn.MSELoss()
@@ -58,9 +58,11 @@ if workMode == pm.LearningMode.Classification2LabelsOneHot:
 elif workMode == pm.LearningMode.Regression:
     criterion = nn.MSELoss()
     if dataMode == pm.DataMode.DeltaMode:
-        model = CHAModule.MyNet1(112, 2)
+        model = CHAModule.MyNet1(112, 3)
     elif dataMode == pm.DataMode.SquareMode:
         model = CHAModule.CNN_Up()
+    elif dataMode == pm.DataMode.OriginMode:
+        model = CHAModule.MyNet1(64, 3)
 elif workMode == pm.LearningMode.Classification1LabelHeatMap:
     criterion = nn.MSELoss()
     model = CHAModule.MyNet1(112, 64 * 48)
@@ -77,15 +79,15 @@ for epoch in range(100):  # loop over the dataset multiple times
         inputs, labels = data
         l=labels
         if workMode == pm.LearningMode.Classification1Label:
-            one_hot = torch.zeros(labels.size(0), 640).scatter_(1, labels.data[:,:,0], 1)
-            inputs, labels = Variable(inputs), Variable(one_hot.view(-1, 1, 640))
+            one_hot = torch.zeros(labels.size(0), pm.picWidth).scatter_(1, labels.data[:,:,0], 1)
+            inputs, labels = Variable(inputs), Variable(one_hot.view(-1, 1, pm.picWidth))
         elif workMode == pm.LearningMode.Classification2LabelsOneHot:
             one_hot = torch.zeros(labels.size(0), pm.OutputShape[0]).scatter_(1, labels.data[:, :, 0], 1)
             one_hot2 = torch.zeros(labels.size(0), pm.OutputShape[1]).scatter_(1, labels.data[:, :, 1], 1)
             inputs, labels = Variable(inputs), Variable(torch.cat((
                 one_hot.view(-1, 1, pm.OutputShape[0]),one_hot2.view(-1, 1, pm.OutputShape[1])),2))
         elif workMode == pm.LearningMode.Regression:
-            inputs, labels = Variable(inputs), Variable((labels -torch.Tensor([0, 240]).view(1, 2))/ torch.Tensor([640, 240]).view(1, 2))
+            inputs, labels = Variable(inputs), Variable(labels/ torch.Tensor([pm.picWidth, pm.picHeight,pm.picDepth]).view(1, 3))
         elif workMode == pm.LearningMode.Classification1LabelHeatMap:
             inputs, labels = Variable(inputs), Variable(HeatMapFromLabel(labels,1.5).view(-1,1,64*48))
         # wrap them in Variable
@@ -105,8 +107,8 @@ for epoch in range(100):  # loop over the dataset multiple times
         outputs = model((inputs))
 
         #bb=sum(outputs[0,0,:])
-        #labels = Variable(torch.LongTensor(labels.view(-1,640)))
-        #loss = criterion(outputs.view(-1,640),l[:,0,0].cuda())
+        #labels = Variable(torch.LongTensor(labels.view(-1,pm.picWidth)))
+        #loss = criterion(outputs.view(-1,pm.picWidth),l[:,0,0].cuda())
         if workMode == pm.LearningMode.Classification2LabelsOneHot:
             loss = criterion(outputs.view(-1,1120),l)
         elif workMode == pm.LearningMode.Regression or workMode == pm.LearningMode.Classification1LabelHeatMap:

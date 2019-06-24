@@ -164,9 +164,9 @@ def CalPhaseFromFile(filename,outputfile):
         start_index = int(OneSegStart[index]+1000 * sampleRate / 6000000)
         end_index = OneSegEnd[index]
         end_index = int(OneSegStart[index]+5000* sampleRate / 6000000)
-        # plt.figure()
-        # plt.plot(np.abs(antennaSingle[start_index:end_index]))
-        # plt.show()
+        plt.figure()
+        plt.plot(np.abs(antennaSingle[start_index:end_index]))
+        plt.show()
         s = 0
         epc = 0
         if(OneSegEnd[index] > 4.41 * sampleRate / 1000 ):

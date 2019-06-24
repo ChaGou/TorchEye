@@ -8,30 +8,30 @@ import torch.nn.functional as F
 
 from src.dataprocess import FileDataSet
 
-TestMoade = pm.LearningMode.Regression
+TestMoade = pm.learnMode
 if __name__ == '__main__':
     #import TrainTestbed
-    model = torch.load('a.core')
+    model = torch.load('b.core')
     model.eval()
-    testPath = r'E:\Data21'
+    testPath = r'D:\dataset\data4'
     testDataset = FileDataSet.FileDataset(testPath + r'\traindata.txt',
                                           testPath +r'\trainlabel.txt')
     testloader = torch.utils.data.DataLoader(testDataset, batch_size=1,
                                               shuffle=False, num_workers=0)
     criterion = nn.MSELoss()
-    modelAE = torch.load('c.core')
+#    modelAE = torch.load('c.core')
 
     # randindex = torch.linspace(1,100,100)#np.random.randint(0, 80, size=[10])
     # for i in randindex:
     #     inputs, labels = testDataset[int(i)]
     #     labels=labels.view(1,1,2)
-    #     one_hot = torch.zeros(1, 640).scatter_(1, labels.data[:,:,0],1)
-    #     inputs, labels = Variable(inputs), Variable(one_hot.view(-1, 640))
+    #     one_hot = torch.zeros(1, pm.picWidth).scatter_(1, labels.data[:,:,0],1)
+    #     inputs, labels = Variable(inputs), Variable(one_hot.view(-1, pm.picWidth))
     #     if torch.cuda.is_available():
     #         inputs = inputs.cuda()
     #         labels = labels.cuda()
     #     outputs = core(Variable(inputs ))
-    #     scal = (torch.Tensor([640, 480]).view(1, 2)).cuda()
+    #     scal = (torch.Tensor([pm.picWidth, pm.picHeight]).view(1, 2)).cuda()
     #
     #     #print(outputs.data * scal)
     #     print(outputs.data)
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     # inputs, labels = testDataset[:]
     # outputs=core(Variable(inputs.cuda()))
-    # #scal = (torch.Tensor([640, 480]).view(1, 2)).cuda()
+    # #scal = (torch.Tensor([pm.picWidth, pm.picHeight]).view(1, 2)).cuda()
     # #np.savetxt('a.txt', (outputs.data*scal).cpu().numpy(), fmt='%.6f')
     # np.savetxt('a.txt', (outputs.data).cpu().numpy(), fmt='%.6f')
     # for epoch in range(1):  # loop over the dataset multiple times
@@ -49,11 +49,11 @@ if __name__ == '__main__':
     #     for i, data in enumerate(testloader, 0):
     #         # get the inputs
     #         inputs, labels = data
-    #         one_hot = torch.zeros(labels.size(0), 640).scatter_(1, labels.data[:, :, 0], 1)
-    #         inputs, labels = Variable(inputs), Variable(one_hot.view(-1, 1, 640))
+    #         one_hot = torch.zeros(labels.size(0), pm.picWidth).scatter_(1, labels.data[:, :, 0], 1)
+    #         inputs, labels = Variable(inputs), Variable(one_hot.view(-1, 1, pm.picWidth))
     #
     #         # wrap them in Variable
-    #         #inputs, labels = Variable(inputs ), Variable(labels /torch.Tensor([640,480]).view(1,2))
+    #         #inputs, labels = Variable(inputs ), Variable(labels /torch.Tensor([pm.picWidth,pm.picHeight]).view(1,2))
     #         if torch.cuda.is_available():
     #             inputs = inputs.cuda()
     #             labels = labels.cuda()
@@ -74,6 +74,7 @@ if __name__ == '__main__':
     # print('Finished Training')
     if TestMoade == pm.LearningMode.Classification1LabelHeatMap:
         inputs, labels = testDataset[:]
+
         if torch.cuda.is_available():
             inputs = inputs.cuda()
             labels = labels.cuda()
@@ -87,6 +88,7 @@ if __name__ == '__main__':
         # index =torch.cat((indices.view(-1,1),indices2.view(-1,1)),1)
         # np.savetxt('a.txt',index.numpy().astype(int))
         # np.savetxt('b.txt', x.numpy())
+        plt.figure()
         b = labels.cpu().numpy()[0::10, 0]
         plt.plot(b / 10)
         # plt.figure()
@@ -142,19 +144,32 @@ if __name__ == '__main__':
         if torch.cuda.is_available():
             inputs = inputs.cuda()
             labels = labels.cuda()
-        outputs = model(Variable((inputs)))
+        if pm.dataMode == pm.DataMode.SquareMode:
+            inputs = inputs.view(-1, 1, 8, 8)
+            outputs = model(Variable((inputs)))
+            outputs = outputs.view(-1, 3)
+        else:
+            outputs = model(Variable((inputs)))
+
+        # plt.hist(labels.cpu().numpy()[:, 0],100)
+        # plt.show()
+
         b = labels.cpu().numpy()[:, 0]
         plt.plot(b)
-        plt.plot(outputs.detach().cpu().numpy()[:,0]*640)
-        r1 = b - outputs.detach().cpu().numpy()[:,0]*640
+        plt.plot(outputs.detach().cpu().numpy()[:,0]*pm.picWidth)
+        r1 = b - outputs.detach().cpu().numpy()[:,0]*pm.picWidth
         plt.figure()
         b = labels.cpu().numpy()[:, 1]
         plt.plot(b)
-        plt.plot((outputs.detach().cpu().numpy()[:, 1]) * 240+240)
-        r2 = b - ((outputs.detach().cpu().numpy()[:, 1]) * 240+240)
+        plt.plot((outputs.detach().cpu().numpy()[:, 1]) * pm.picHeight)
+        r2 = b - ((outputs.detach().cpu().numpy()[:, 1]) * pm.picHeight)
+        plt.figure()
+        b = labels.cpu().numpy()[:, 2]
+        plt.plot(b)
+        plt.plot((outputs.detach().cpu().numpy()[:, 2]) * pm.picDepth)
         np.savetxt('error.txt',np.sqrt(r1*r1+r2*r2))
         plt.show()
-        temp2 = np.hstack((outputs.detach().cpu().numpy()[:,0].reshape(-1, 1) * 640, outputs.detach().cpu().numpy()[:,1].reshape(-1, 1) * 240+240))
+        temp2 = np.hstack((outputs.detach().cpu().numpy()[:,0].reshape(-1, 1) * pm.picWidth, outputs.detach().cpu().numpy()[:,1].reshape(-1, 1) * pm.picHeight))
         np.savetxt('a.txt', temp2)
     elif TestMoade == pm.LearningMode.Classification2LabelsOneHot:
         inputs, labels = testDataset[:]
