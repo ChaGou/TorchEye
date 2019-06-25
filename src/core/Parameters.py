@@ -10,6 +10,7 @@ class DataMode(Enum):
     OriginMode = 0
     DeltaMode = 1
     SquareMode = 2
+    AoAMap=3
 
 OutputShape = [640, 480]
 learnMode = LearningMode.Regression
@@ -23,3 +24,7 @@ cx=633.87982177734375000
 cy=364.74035644531250000
 fx=711.52478027343750000
 fy=712.65344238281250000
+
+row = 2
+colomn =2
+length = 3

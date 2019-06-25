@@ -121,7 +121,7 @@ def test_sub_anttena(row,colomn,length):
 
 
 #cal_offset()
-offset = numpy.loadtxt(r'offsetfromstatic.txt')
-test_sub_anttena(3,3,3)
+#offset = numpy.loadtxt(r'offsetfromstatic.txt')
+#test_sub_anttena(3,3,3)
 
 

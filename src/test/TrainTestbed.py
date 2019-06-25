@@ -5,6 +5,8 @@ import torch.optim as optim
 from src.dataprocess import FileDataSet
 from src.core import Parameters as pm, CHAModule
 import math
+import numpy
+import AntennaArray_2eye as aa
 
 
 class MyLoss(nn.Module):
@@ -37,6 +39,26 @@ pixalX = torch.linspace(0, w - 1, w).view(1, w)
 pixalX = torch.matmul(torch.ones(h, 1), pixalX).view(1, w * h)
 pixalY = torch.linspace(0, h - 1, h).view(h, 1)
 pixalY = torch.matmul(pixalY, torch.ones(1, w), ).view(1, w * h)
+
+row = pm.row
+colomn = pm.colomn
+length = pm.length
+center_x = -57.75+(row*2+length-1)/2.0*16.5
+center_y = -9.5-(colomn*2+length-1)/2.0*16.5
+subAntenna = aa.SquareArray(length, center_y, center_x)
+print(subAntenna.antenna_cor)
+subAntennaIndex = numpy.zeros(shape=length*length)
+for i in range(length * length):
+    subAntennaIndex[i] = (i // length + colomn) * 8 + i % length + row
+offset = numpy.loadtxt(r'offsetfromstatic.txt')
+offset = torch.Tensor(offset).view(1, -1)
+offset = offset[:,subAntennaIndex]
+w = 360
+h = 90
+Al = torch.linspace(0, w - 1, w).view(1, w) / 180.0 * numpy.pi
+Al = torch.matmul(torch.ones(h, 1), Al).view(1, 1, w * h)
+Be = torch.linspace(0, h - 1, h).view(h, 1) / 180.0 * numpy.pi
+Be = torch.matmul(Be, torch.ones(1, w), ).view(1, 1, w * h)
 def HeatMapFromLabel(labels,delta):
     dx = torch.floor(labels.view(-1,2)[:,0] / 10).view(-1,1) - pixalX
     dy = torch.floor(labels.view(-1,2)[:,1] / 10).view(-1,1) - pixalY
@@ -63,6 +85,8 @@ elif workMode == pm.LearningMode.Regression:
         model = CHAModule.CNN_Up()
     elif dataMode == pm.DataMode.OriginMode:
         model = CHAModule.MyNet1(64, 3)
+    elif dataMode == pm.DataMode.AoAMap:
+        model = model
 elif workMode == pm.LearningMode.Classification1LabelHeatMap:
     criterion = nn.MSELoss()
     model = CHAModule.MyNet1(112, 64 * 48)
@@ -78,7 +102,20 @@ for epoch in range(100):  # loop over the dataset multiple times
         # get the inputs
         inputs, labels = data
         l=labels
-        if workMode == pm.LearningMode.Classification1Label:
+        if dataMode == pm.DataMode.AoAMap:
+            inputs = inputs[:, subAntennaIndex]
+            offset = offset[:, subAntennaIndex]
+            inputs = inputs - offset
+            labels = labels / 10
+            inputs = inputs.view(-1, length*length, 1)
+            inputs = subAntenna.p0(Al, Be, inputs.view(1, 9, 1)).view(-1,h, w)
+            altruth = numpy.arctan2(labels[:, 1].numpy() - center_y, labels[:, 0].numpy() - center_x) / numpy.pi * 180
+            betruth = numpy.arcsin((labels[:, 2].numpy() + 2) / numpy.sqrt(
+                (labels[:, 1].numpy() - center_y) * (labels[:, 1].numpy() - center_y) + (
+                            labels[:, 0].numpy() - center_x) * (labels[:, 0].numpy() - center_x) + (
+                            labels[:, 2].numpy() + 2) * (labels[:, 2].numpy() + 2))) / numpy.pi * 180
+            temp=numpy.concatenate((altruth.view(-1,1),altruth.view(-1,1)), axis=1)
+        elif workMode == pm.LearningMode.Classification1Label:
             one_hot = torch.zeros(labels.size(0), pm.picWidth).scatter_(1, labels.data[:,:,0], 1)
             inputs, labels = Variable(inputs), Variable(one_hot.view(-1, 1, pm.picWidth))
         elif workMode == pm.LearningMode.Classification2LabelsOneHot:
