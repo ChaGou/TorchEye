@@ -1,8 +1,8 @@
 import numpy
 from mpl_toolkits.mplot3d import Axes3D
-testPath = r'D:\dataset\data3'
-data_path = testPath+r'\traindata.txt'
-label_path = testPath+ r'\trainlabel.txt'
+testPath = r'E:\DataTest'
+data_path = testPath+r'\traindataUni.txt'
+label_path = testPath+ r'\trainlabelUni.txt'
 data = numpy.loadtxt(data_path)
 label = numpy.loadtxt(label_path)
 temp = numpy.mean(data,axis=1)
@@ -29,7 +29,7 @@ numpy.savetxt('befornormalize.txt',data)
 result = numpy.zeros((1,56*2))
 for i in range(56*2):
     temp,_ = numpy.histogram(data[:,i],360)
-    minn = 100000
+    minn = 1000000
     minindex = 0
     for j in range(360):
         sumtemp = temp[j]
@@ -41,7 +41,7 @@ for i in range(56*2):
             minindex = j
     result[0,i] = minindex
 print(result)
-result = numpy.mod(result,numpy.pi*2)
+#result = numpy.mod(result,numpy.pi*2)
 numpy.savetxt('offset.txt',result)
 data = data + (360 -result)/180.0*numpy.pi
 data = numpy.mod(data+numpy.pi,2*numpy.pi)-numpy.pi

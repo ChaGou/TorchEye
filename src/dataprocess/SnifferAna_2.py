@@ -229,6 +229,6 @@ def AnaMultipleFolders(fatherFolder):
                 AnaOneFolder(fatherFolder + r'\\' + foldername + r'\\' + 'usrp_data')
 
 
-AnaMultipleFolders(r'D:\dataset\data5')
-#AnaOneFolder(r'C:\usrp_data')
+#AnaMultipleFolders(r'D:\dataset\data5')
+AnaOneFolder(r'D:\dataset\datastatic\usrp_data')
 # CalPhaseFromFile(r'E:\Data6\2018-12-07-15-52-23-1125461\usrp_data\20181207155432.883_2ch.bin','aaa.txt')
